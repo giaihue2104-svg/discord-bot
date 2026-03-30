@@ -444,12 +444,20 @@ async def cmd(ctx):
     await ctx.send(embed=embed)
 
 bot.run(TOKEN)
-from aiohttp import web
-import os
+import asyncio
 
-PORT = int(os.environ.get("PORT", 8000))
-
-app = web.Application()
-app.router.add_get("/", lambda request: web.Response(text="Bot running"))
-
-web.run_app(app, port=PORT)
+async def main():
+    app = web.Application()
+    app.router.add_get("/", lambda request: web.Response(text="Bot is healthy!"))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.environ.get("PORT", 8000)))
+    await site.start()
+    print(f"Web server started on port {os.environ.get('PORT', 8000)}")
+    async with bot:
+        await bot.start(TOKEN)
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
