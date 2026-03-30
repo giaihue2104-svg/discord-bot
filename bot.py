@@ -4,6 +4,7 @@ import aiohttp
 import os
 
 TOKEN = os.getenv("TOKEN")
+
 intents = discord.Intents.default()
 intents.members = True
 intents.guilds = True
@@ -14,18 +15,19 @@ bot = commands.Bot(
     intents=intents
 )
 
-
 # Only moderators can use command
 def is_mod():
     async def predicate(ctx):
         return ctx.author.guild_permissions.manage_roles
     return commands.check(predicate)
 
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
+# ===============================
+# ROLE CREATION COMMAND
+# ===============================
 
 @bot.command()
 @is_mod()
@@ -59,7 +61,7 @@ async def addrole(
             display_icon=icon_bytes
         )
 
-        # Give role to tagged user
+        # Give role
         await member.add_roles(new_role)
 
         await ctx.send(
@@ -71,7 +73,6 @@ async def addrole(
 
     except Exception as e:
         await ctx.send(f"❌ Error: {e}")
-
 
 @addrole.error
 async def addrole_error(ctx, error):
@@ -87,34 +88,33 @@ async def addrole_error(ctx, error):
             "!addrole @user RoleName #color image_url"
         )
 
+# ===============================
+# AFK COMMAND
+# ===============================
 
-bot.run(TOKEN)
 @bot.command()
 async def afk(ctx, *, reason="AFK"):
     member = ctx.author
 
-    # Get original name
     original_name = member.display_name
 
-    # If already AFK, prevent stacking tags
     if original_name.startswith("["):
         await ctx.send("You're already AFK!")
         return
 
-    # Create new nickname
     new_name = f"[{reason}] {original_name}"
 
     try:
         await member.edit(nick=new_name)
         await ctx.send(f"{member.mention} is now AFK: {reason}")
     except discord.Forbidden:
-        await ctx.send("I can't change your nickname. Check my permissions!")
+        await ctx.send("I can't change your nickname.")
+
 @bot.command()
 async def back(ctx):
     member = ctx.author
     name = member.display_name
 
-    # Remove [reason] part
     if name.startswith("["):
         new_name = name.split("] ", 1)[1]
 
@@ -125,11 +125,14 @@ async def back(ctx):
             await ctx.send("I can't change your nickname.")
     else:
         await ctx.send("You're not AFK.")
-@bot.command()
-@commands.has_permissions(manage_roles=True)  # Only mods/admins
-async def join(ctx):
-    channel_id = 1486623717260791859
-    channel = ctx.guild.get_channel(channel_id)
+
+@bot.command(name="new")
+@commands.has_permissions(manage_roles=True)
+async def new_command(ctx):
+
+    channel_id = 1486623717260791859  
+
+    channel = ctx.guild.get_channel(1486623717260791859)
 
     if channel:
         await ctx.send(
@@ -137,3 +140,6 @@ async def join(ctx):
         )
     else:
         await ctx.send("Announcement channel not found.")
+
+
+bot.run("TOKEN")
