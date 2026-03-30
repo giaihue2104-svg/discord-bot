@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import aiohttp
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = ("TOKEN")
 intents = discord.Intents.default()
 intents.members = True
 intents.guilds = True
