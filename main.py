@@ -444,3 +444,12 @@ async def cmd(ctx):
     await ctx.send(embed=embed)
 
 bot.run(TOKEN)
+from aiohttp import web
+import os
+
+PORT = int(os.environ.get("PORT", 8000))
+
+app = web.Application()
+app.router.add_get("/", lambda request: web.Response(text="Bot running"))
+
+web.run_app(app, port=PORT)
