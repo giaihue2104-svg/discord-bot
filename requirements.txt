@@ -1,6 +1,0 @@
-discord.py
-aiohttp
-asyncpg
-rembg
-Pillow
-onnxruntime
